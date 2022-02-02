@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 )
 
 // https://git.learn.01founders.co/root/public/src/branch/master/subjects/ascii-art-web/audit
@@ -14,36 +17,95 @@ import (
 
 // in a browser type: localhost:8080 to see the webpage after entering (go run .) in the terminal
 
+func main() {
+	http.HandleFunc("/", process)
+
+	fmt.Printf("Starting server at port 8080\n")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
 func process(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.Error(w, "404 not found.", http.StatusNotFound)
-		return
+		if r.URL.Path != "/ascii-art" {
+			http.Error(w, "404 not found.", http.StatusNotFound)
+			return
+		}
 	}
-
 	switch r.Method {
 	case "GET":
 
 		http.ServeFile(w, r, "form.html")
 	case "POST":
-
 		if err := r.ParseForm(); err != nil {
 			fmt.Fprintf(w, "ParseForm() err: %v", err)
 			return
 		}
+		input := r.FormValue("input")
 
-		font := r.FormValue("Font")
-		input := r.FormValue("Enter Text:")
-
-		fmt.Fprintf(w, "%s is a %s\n", input, font)
+		fmt.Fprintf(w, "%s\n", input)
 
 	default:
 		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
 	}
 }
 
-func main() {
-	http.HandleFunc("/", process)
+func AsciiArt() {
+	if len(os.Args) == 1 {
+		return
+	}
 
-	fmt.Printf("Starting server at port 8080\n")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	string := os.Args[1]
+	for _, v := range os.Args[2:] {
+		string += " " + v
+	}
+
+	previous := 'a'
+	manylines := false
+	for _, v := range string {
+		if v == 'n' && previous == '\\' {
+			manylines = true
+		}
+		previous = v
+	}
+
+	result := ""
+	if manylines {
+		args := strings.Split(string, "\\n")
+		for _, word := range args {
+			for i := 0; i < 8; i++ {
+				for _, char := range word {
+					result += ReturnLine(1 + int(char-' ')*9 + i)
+				}
+				fmt.Println(result)
+				result = ""
+			}
+		}
+
+	} else {
+		for i := 0; i < 8; i++ {
+			for _, char := range string {
+				result += ReturnLine(1 + int(char-' ')*9 + i)
+			}
+			fmt.Println(result)
+			result = ""
+		}
+	}
+}
+
+func ReturnLine(num int) string {
+	string := ""
+	f, e := os.Open("standard.txt")
+	if e != nil {
+		fmt.Println(e.Error())
+		os.Exit(0)
+	}
+	defer f.Close()
+
+	f.Seek(0, 0)
+	content := bufio.NewReader(f)
+	for i := 0; i < num; i++ {
+		string, _ = content.ReadString('\n')
+	}
+	string = strings.TrimSuffix(string, "\n")
+	return string
 }

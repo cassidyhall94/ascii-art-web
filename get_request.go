@@ -14,9 +14,7 @@ import (
 // Does the project handle HTTP status 400 - Bad Request?
 // Does the project handle HTTP status 500 - Internal Server Errors?
 // https://www.restapitutorial.com/httpstatuscodes.html
-
 // in a browser type: localhost:8080 to see the webpage after entering (go run .) in the terminal
-
 func main() {
 	http.HandleFunc("/", process)
 
@@ -40,24 +38,20 @@ func process(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "ParseForm() err: %v", err)
 			return
 		}
-		input := r.FormValue("input")
 
-		fmt.Fprintf(w, "%s\n", input)
+		input := r.FormValue("input")
+		banner := r.FormValue("Font")
+
+		fmt.Fprintf(w, "%s\n", AsciiArt(input))
+		fmt.Fprintf(w, "%s\n", AsciiArt(banner))
 
 	default:
 		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
 	}
 }
 
-func AsciiArt() {
-	if len(os.Args) == 1 {
-		return
-	}
-
-	string := os.Args[1]
-	for _, v := range os.Args[2:] {
-		string += " " + v
-	}
+func AsciiArt(str string) string {
+	string := str
 
 	previous := 'a'
 	manylines := false
@@ -76,8 +70,7 @@ func AsciiArt() {
 				for _, char := range word {
 					result += ReturnLine(1 + int(char-' ')*9 + i)
 				}
-				fmt.Println(result)
-				result = ""
+				result = result + "\n"
 			}
 		}
 
@@ -86,15 +79,15 @@ func AsciiArt() {
 			for _, char := range string {
 				result += ReturnLine(1 + int(char-' ')*9 + i)
 			}
-			fmt.Println(result)
-			result = ""
+			result = result + "\n"
 		}
 	}
+	return result
 }
 
 func ReturnLine(num int) string {
 	string := ""
-	f, e := os.Open("standard.txt")
+	f, e := os.Open("standard.txt") // add variable for banner
 	if e != nil {
 		fmt.Println(e.Error())
 		os.Exit(0)

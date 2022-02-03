@@ -102,6 +102,3 @@ func ReturnLine(num int, banner string) string {
 	string = strings.TrimSuffix(string, "\n")
 	return string
 }
-
-// when a banner is selected from the drop down list, it needs to change the style of the ascii art to reflect either standard, thinkertoy or shadow
-// create a variable that can receive the data from each txt document and apply it to the text input

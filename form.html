@@ -7,7 +7,7 @@
 </head>
 <body>
 
-    <form method="POST" action="/ascii-art" enctype="application/x-www-form-urlencoded">
+    <form method="POST" action="/ascii-art">
         <div>
             <label for="input">Enter Text:</label>
         <input type="text" name="input">
@@ -15,9 +15,9 @@
         <div>
             <label for="Font">Font Type:</label>
             <select name="Font">
-                <option value="Shadow.txt">Shadow</option>
-                <option value="Standard.txt">Standard</option>
-                <option value="Thinkertoy.txt">Thinkertoy</option>
+                <option value="shadow.txt">Shadow</option>
+                <option value="standard.txt">Standard</option>
+                <option value="thinkertoy.txt">Thinkertoy</option>
               </select>
         </div>
         <label for="submit">Click to</label>
@@ -25,10 +25,3 @@
     </form>
 </body>
 </html>
-
-<!-- POST /test HTTP/1.1
-Host: foo.example
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 27
-
-field1=value1&field2=value2 -->

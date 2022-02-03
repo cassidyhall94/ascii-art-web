@@ -42,15 +42,14 @@ func process(w http.ResponseWriter, r *http.Request) {
 		input := r.FormValue("input")
 		banner := r.FormValue("Font")
 
-		fmt.Fprintf(w, "%s\n", AsciiArt(input))
-		fmt.Fprintf(w, "%s\n", AsciiArt(banner))
+		fmt.Fprintf(w, "%s\n", AsciiArt(input, banner))
 
 	default:
 		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
 	}
 }
 
-func AsciiArt(str string) string {
+func AsciiArt(str string, banner string) string {
 	string := str
 
 	previous := 'a'
@@ -68,7 +67,7 @@ func AsciiArt(str string) string {
 		for _, word := range args {
 			for i := 0; i < 8; i++ {
 				for _, char := range word {
-					result += ReturnLine(1 + int(char-' ')*9 + i)
+					result += ReturnLine((1 + int(char-' ')*9 + i), banner)
 				}
 				result = result + "\n"
 			}
@@ -77,7 +76,7 @@ func AsciiArt(str string) string {
 	} else {
 		for i := 0; i < 8; i++ {
 			for _, char := range string {
-				result += ReturnLine(1 + int(char-' ')*9 + i)
+				result += ReturnLine((1 + int(char-' ')*9 + i), banner)
 			}
 			result = result + "\n"
 		}
@@ -85,9 +84,10 @@ func AsciiArt(str string) string {
 	return result
 }
 
-func ReturnLine(num int) string {
+func ReturnLine(num int, banner string) string {
 	string := ""
-	f, e := os.Open("standard.txt") // add variable for banner
+
+	f, e := os.Open(banner) // add variable for banner
 	if e != nil {
 		fmt.Println(e.Error())
 		os.Exit(0)
@@ -102,3 +102,6 @@ func ReturnLine(num int) string {
 	string = strings.TrimSuffix(string, "\n")
 	return string
 }
+
+// when a banner is selected from the drop down list, it needs to change the style of the ascii art to reflect either standard, thinkertoy or shadow
+// create a variable that can receive the data from each txt document and apply it to the text input

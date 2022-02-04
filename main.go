@@ -10,10 +10,6 @@ import (
 )
 
 // https://git.learn.01founders.co/root/public/src/branch/master/subjects/ascii-art-web/audit
-// Are all the pages working? Does the project implement 404 status?
-// Does the project handle HTTP status 400 - Bad Request?
-// Does the project handle HTTP status 500 - Internal Server Errors?
-// https://www.restapitutorial.com/httpstatuscodes.html
 // in a browser type: localhost:8080 to see the webpage after entering (go run .) in the terminal
 func main() {
 	http.HandleFunc("/", process)
@@ -25,31 +21,41 @@ func main() {
 func process(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		if r.URL.Path != "/ascii-art" {
-			http.Error(w, "404 not found.", http.StatusNotFound)
+			http.Error(w, "404 Status not found", http.StatusNotFound)
 			return
 		}
 	}
 	switch r.Method {
 	case "GET":
 
-		http.ServeFile(w, r, "form.html")
+		http.ServeFile(w, r, "templates/form.html")
 	case "POST":
 		if err := r.ParseForm(); err != nil {
-			fmt.Fprintf(w, "ParseForm() err: %v", err)
+			http.Error(w, err.Error(), http.StatusBadRequest) // if there is an error it returns bad request 400
 			return
 		}
 
 		input := r.FormValue("input")
-		banner := r.FormValue("Font")
+		banner := r.FormValue("Banner")
+		if len(input) == 0 {
+			http.Error(w, "Input should not be empty: Bad Request 400", http.StatusBadRequest) // if there is an error it returns bad request 400
+			return
+		}
+		response, err := AsciiArt(input, banner) // return the error if the banner not found.
+		if err != nil {
+			// http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "No such file or directory: Internal Server Error 500", http.StatusInternalServerError)
+			return
+		}
 
-		fmt.Fprintf(w, "%s\n", AsciiArt(input, banner))
+		_, _ = w.Write([]byte(response)) // Write returns the response with a 200 status code in the header as this is built into the Write function
 
 	default:
-		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
+		http.Error(w, "Sorry, only GET and POST methods are supported.", http.StatusUnsupportedMediaType) // this will return the right status code
 	}
 }
 
-func AsciiArt(str string, banner string) string {
+func AsciiArt(str string, banner string) (string, error) {
 	string := str
 
 	previous := 'a'
@@ -67,7 +73,11 @@ func AsciiArt(str string, banner string) string {
 		for _, word := range args {
 			for i := 0; i < 8; i++ {
 				for _, char := range word {
-					result += ReturnLine((1 + int(char-' ')*9 + i), banner)
+					x, err := ReturnLine((1 + int(char-' ')*9 + i), banner)
+					if err != nil {
+						return "", err
+					}
+					result += x
 				}
 				result = result + "\n"
 			}
@@ -76,29 +86,32 @@ func AsciiArt(str string, banner string) string {
 	} else {
 		for i := 0; i < 8; i++ {
 			for _, char := range string {
-				result += ReturnLine((1 + int(char-' ')*9 + i), banner)
+				x, err := ReturnLine((1 + int(char-' ')*9 + i), banner)
+				if err != nil {
+					return "", err
+				}
+				result += x
 			}
 			result = result + "\n"
 		}
 	}
-	return result
+	return result, nil
 }
 
-func ReturnLine(num int, banner string) string {
-	string := ""
+func ReturnLine(num int, banner string) (string, error) {
+	entry := ""
 
-	f, e := os.Open(banner) // add variable for banner
-	if e != nil {
-		fmt.Println(e.Error())
-		os.Exit(0)
+	f, err := os.Open(banner)
+	if err != nil {
+		return "", err
 	}
 	defer f.Close()
 
 	f.Seek(0, 0)
 	content := bufio.NewReader(f)
 	for i := 0; i < num; i++ {
-		string, _ = content.ReadString('\n')
+		entry, _ = content.ReadString('\n')
 	}
-	string = strings.TrimSuffix(string, "\n")
-	return string
+	entry = strings.TrimSuffix(entry, "\n")
+	return entry, nil
 }

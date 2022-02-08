@@ -50,3 +50,38 @@ func TestAsciiArt(t *testing.T) {
 		// assert.Equal(t, responseRecorder.Code, tc.expectedResponse)
 	}
 }
+
+func TestPostEndpoint(t *testing.T) {
+	svr := httptest.NewServer(http.HandlerFunc(process))
+	defer svr.Close()
+	form := url.Values{}
+	form.Add("Banner", "thinkertoy.txt")
+	form.Add("input", "hello sad world")
+
+	request, err := http.NewRequest("POST", svr.URL+"/ascii-art", strings.NewReader(form.Encode()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := http.DefaultClient.Do(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if resp.StatusCode != 200 {
+		t.Errorf("Want status '%d', got '%d'", 200, resp.StatusCode)
+	}
+}
+
+func TestGetEndpoint(t *testing.T) {
+	svr := httptest.NewServer(http.HandlerFunc(process))
+	defer svr.Close()
+	resp, err := http.Get(svr.URL + "/")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != 200 {
+		t.Errorf("Want status '%d', got '%d'", 200, resp.StatusCode)
+	}
+}

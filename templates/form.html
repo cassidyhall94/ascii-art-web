@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Ascii Art Generator</title>
-    <!-- <link href="https://git.learn.01founders.co/Cassidy.Hall94/ascii-art.git" rel="tag"> -->
 </head>
+
 <body>
-<h2>Ascii Art Generator</h2>
+    <h2>Ascii Art Generator</h2>
     <form method="POST" action="/ascii-art">
         <div>
             <label for="input">Enter Text:</label>
-        <input type="text" name="input">
+            <input type="text" name="input">
         </div>
         <div>
             <label for="Banner">Banner Type:</label>
             <select name="Banner">
-                <option value="ashadow.txt">Shadow</option>
-                <option value="standard.txt">Standard</option> 
+                <option value="shadow.txt">Shadow</option>
+                <option value="standard.txt">Standard</option>
                 <option value="thinkertoy.txt">Thinkertoy</option>
-              </select>
+            </select>
         </div>
         <label for="submit">Click to</label>
         <button type="submit" value="submit">Generate Art</button>
     </form>
 </body>
+
 </html>

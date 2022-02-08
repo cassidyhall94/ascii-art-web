@@ -47,7 +47,7 @@ func process(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "No such file or directory: Internal Server Error 500", http.StatusInternalServerError)
 			return
 		}
-
+		
 		_, _ = w.Write([]byte(response)) // Write returns the response with a 200 status code in the header as this is built into the Write function
 
 	default:
